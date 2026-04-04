@@ -11,7 +11,7 @@ export type Certificate = {
   certNo: string;
   DOB: string;
   position: string;
-  sig: string;
+  sigKey: string;
   currentDate: string;
   unFitToWork: boolean;
   location: string;
@@ -19,6 +19,14 @@ export type Certificate = {
   forx: string;
   unfit: string;
 };
+
+export const sigMap = [
+  {
+    id: 1,
+    label: "Dr Segun",
+    value: "https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/dr_segun.png",
+  },
+];
 
 const getBufferFromRequest = async ({
   fileType = "png",
@@ -29,24 +37,13 @@ const getBufferFromRequest = async ({
 }) => {
   console.log(fileType, url);
   const request = await ky(url);
+  if (!request.ok) {
+    throw new Error("Request failed, cannot fetch file");
+  }
   const buffer = await request.bytes();
   return buffer;
 };
-// firstName: "",
-//       surname: "",
-//       contractorCompanyName: "",
-//       periodicalCheck: false,
-//       prolongedMedicalCheck: false,
-//       fitForAssignedTask: false,
-//       certNo: "",
-//       DOB: "",
-//       position: "",
-//       sig: "",
-//       location: "",
-//       fitWithRestrictions: "",
-//       forx: "",
-//       unfit: "",
-//       image: "",
+
 export const generateCertificate = async ({
   contractorCompanyName,
   periodicalCheck,
@@ -58,23 +55,29 @@ export const generateCertificate = async ({
   certNo,
   DOB,
   position,
-  sig,
+  sigKey,
   fitWithRestrictions,
   location,
   currentDate,
   forx,
   unfit,
 }: Certificate) => {
-  const template = await getBufferFromRequest({
-    fileType: "docx",
-    url: `https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/AMC_Certificate_template_for_Contractors_copy.docx`,
-  });
-
-  const stamp = await getBufferFromRequest({
-    fileType: "png",
-    url: `https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/MRD%20STAMP.png`,
-  });
-
+  console.time("myTimer");
+  const [template, stamp, signature] = await Promise.all([
+    getBufferFromRequest({
+      fileType: "docx",
+      url: `https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/AMC_Certificate_template_for_Contractors_copy.docx`,
+    }),
+    getBufferFromRequest({
+      fileType: "png",
+      url: `https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/MRD%20STAMP.png`,
+    }),
+    getBufferFromRequest({
+      fileType: "png",
+      url: String(sigMap.find((sig) => sig.value === sigKey)?.value),
+    }),
+  ]);
+  console.timeEnd("myTimer");
   const buffer = await createReport({
     cmdDelimiter: ["{", "}"],
     template,
@@ -91,18 +94,24 @@ export const generateCertificate = async ({
       unFitToWork,
       DOB,
       position: position.toUpperCase(),
-      sig,
       location,
       forx: forx.toUpperCase(),
       unfit: unfit.toUpperCase(),
     },
     additionalJsContext: {
       stamp: () => {
-        console.log();
         return {
           width: 4,
           height: 4,
           data: stamp,
+          extension: ".png",
+        };
+      },
+      sig: () => {
+        return {
+          width: 2,
+          height: 2,
+          data: signature,
           extension: ".png",
         };
       },
@@ -112,8 +121,5 @@ export const generateCertificate = async ({
   const decoder = Buffer.from(buffer);
 
   const base64String = decoder.toString("base64");
-  console.log(
-    `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64String}`,
-  );
   return `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${base64String}`;
 };

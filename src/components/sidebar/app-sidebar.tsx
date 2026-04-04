@@ -1,15 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Home,
-  LucideBookDown,
-  Settings,
-  Sparkles,
-  Store,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { History, Home, LucideBookDown, Settings } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/sidebar/logo";
 import DashboardNavigation from "@/components/sidebar/nav-main";
@@ -34,9 +26,15 @@ const dashboardRoutes: Route[] = [
   },
   {
     id: "generate",
-    title: "Genarate",
+    title: "Generate",
     icon: <LucideBookDown className="size-4" />,
     link: "/generate",
+  },
+  {
+    id: "history",
+    title: "History",
+    icon: <History className="size-4" />,
+    link: "/history",
   },
   {
     id: "settings",
@@ -46,16 +44,11 @@ const dashboardRoutes: Route[] = [
     subs: [
       { title: "Create user", link: "/settings/users" },
       { title: "Change Password", link: "/settings/change-password" },
-      { title: "Custom Fields", link: "#" },
     ],
   },
 ];
 
-const teams = [
-  { id: "1", name: "Alpha Inc.", logo: Logo, plan: "Free" },
-  { id: "2", name: "Beta Corp.", logo: Logo, plan: "Free" },
-  { id: "3", name: "Gamma Tech", logo: Logo, plan: "Free" },
-];
+const teams = [{ id: "1", name: "Medicaid", logo: Logo, plan: "" }];
 
 export function DashboardSidebar() {
   const { state } = useSidebar();

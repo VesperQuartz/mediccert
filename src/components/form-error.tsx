@@ -3,7 +3,7 @@ import { Dot } from "lucide-react";
 
 export const FormErrorMessage = ({ field }: { field: AnyFieldApi }) => {
   return (
-    <div className="flex flex-col">
+    <div className="flex min-h-5 flex-col">
       {field.state.meta?.errors?.map((e) => {
         return (
           <div

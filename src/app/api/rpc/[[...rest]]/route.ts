@@ -1,6 +1,7 @@
 import { CompressionPlugin, RPCHandler } from "@orpc/server/fetch";
 import { BatchHandlerPlugin, CORSPlugin } from "@orpc/server/plugins";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 import router from "@/lib/orpc/router";
 
 const handler = new RPCHandler(router, {
@@ -15,10 +16,15 @@ const handler = new RPCHandler(router, {
 });
 
 async function handleRequest(request: Request) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   const { response } = await handler.handle(request, {
     prefix: "/api/rpc",
     context: {
       headers: await headers(),
+      session,
     }, // Provide initial context if needed
   });
 

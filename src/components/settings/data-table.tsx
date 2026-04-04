@@ -24,11 +24,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterColumn?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  filterColumn = "email",
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -45,17 +47,19 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const column = table.getColumn(filterColumn);
+
   return (
     <div>
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm border-gray-300"
-        />
+        {column && (
+          <Input
+            placeholder={`Filter ${filterColumn}...`}
+            value={(column.getFilterValue() as string) ?? ""}
+            onChange={(event) => column.setFilterValue(event.target.value)}
+            className="max-w-sm border-gray-300"
+          />
+        )}
       </div>
       <div className="overflow-hidden border">
         <Table>

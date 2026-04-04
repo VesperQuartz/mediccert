@@ -1,9 +1,8 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-import { User } from "better-auth/client";
-import { UserWithRole } from "better-auth/plugins";
-import { MoreHorizontal } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { User } from "better-auth/client";
+import type { UserWithRole } from "better-auth/plugins";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +11,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -55,7 +53,7 @@ export const columns: ColumnDef<UserWithRole>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const _payment = row.original;
 
       return (
         <DropdownMenu>

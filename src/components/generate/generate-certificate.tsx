@@ -1,6 +1,6 @@
 "use client";
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { CalendarIcon, LoaderIcon } from "lucide-react";
 import { toast } from "sonner";
@@ -16,11 +16,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { sigMap } from "@/lib/converter";
 import { orpc } from "@/lib/orpc";
 import { cn } from "@/lib/utils";
 import { generateSchema } from "@/types/schema";
 
 export const GenerateCertificate = () => {
+  const queryClient = useQueryClient();
   const mutation = useMutation(orpc.generateCert.mutationOptions());
 
   const form = useForm({
@@ -35,25 +45,32 @@ export const GenerateCertificate = () => {
       certNo: "",
       DOB: "",
       position: "",
-      sig: "",
+      sigKey: "",
       location: "",
       fitWithRestrictions: "",
       forx: "",
       unfit: "",
+      currentDate: "",
     },
     validators: {
       onChange: generateSchema,
     },
-    onSubmit: async (values) => {
-      console.log("value", values.value);
+    onSubmit: async ({ value }) => {
       try {
-        const { data } = await mutation.mutateAsync(values.value);
-        if (data) {
+        const res = await mutation.mutateAsync(value);
+        if (res?.data) {
           const link = document.createElement("a");
-          link.href = data;
-          link.download = `certificate_${values.value.surname}_${format(new Date(), "yyyy-MM-dd")}.docx`;
+          link.href = res.data;
+          link.download = `certificate_${value.surname}_${format(new Date(value.currentDate), "yyyy-MM-dd")}.docx`;
           link.click();
           toast.success("Certificate generated successfully");
+
+          queryClient.invalidateQueries({
+            queryKey: orpc.getStats.key(),
+          });
+          queryClient.invalidateQueries({
+            queryKey: orpc.listHistory.key(),
+          });
         }
       } catch (error) {
         toast.error("Failed to generate certificate");
@@ -64,7 +81,7 @@ export const GenerateCertificate = () => {
 
   return (
     <div className="flex min-h-screen flex-col items-center p-10">
-      <Card className="py-4">
+      <Card className="w-full max-w-4xl py-4">
         <CardHeader>
           <CardTitle className="text-center">Generate Certificate</CardTitle>
         </CardHeader>
@@ -77,7 +94,7 @@ export const GenerateCertificate = () => {
             }}
           >
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="certNo">
                   {(field) => {
                     return (
@@ -97,7 +114,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="contractorCompanyName">
                   {(field) => {
                     return (
@@ -118,7 +135,7 @@ export const GenerateCertificate = () => {
                 </form.Field>
               </div>
 
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="firstName">
                   {(field) => {
                     return (
@@ -138,7 +155,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="surname">
                   {(field) => {
                     return (
@@ -158,28 +175,30 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="DOB">
                   {(field) => {
                     return (
                       <div className="flex w-full flex-col gap-2">
                         <Popover>
-                          <PopoverTrigger asChild>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !field.state.value && "text-muted-foreground",
-                              )}
-                            >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.state.value ? (
-                                format(new Date(field.state.value), "PPP")
-                              ) : (
-                                <span>Pick date of birth</span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !field.state.value && "text-muted-foreground",
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.state.value ? (
+                                  format(new Date(field.state.value), "PPP")
+                                ) : (
+                                  <span>Pick date of birth</span>
+                                )}
+                              </Button>
+                            }
+                          ></PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
@@ -198,14 +217,65 @@ export const GenerateCertificate = () => {
                               }
                               initialFocus
                             />
-                          </PopoverContent>                        </Popover>
+                          </PopoverContent>{" "}
+                        </Popover>
                         <FormErrorMessage field={field} />
                       </div>
                     );
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
+                <form.Field name="currentDate">
+                  {(field) => {
+                    return (
+                      <div className="flex w-full flex-col gap-2">
+                        <Popover>
+                          <PopoverTrigger
+                            render={
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full justify-start text-left font-normal",
+                                  !field.state.value && "text-muted-foreground",
+                                )}
+                              >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.state.value ? (
+                                  format(new Date(field.state.value), "PPP")
+                                ) : (
+                                  <span>Pick certificate date</span>
+                                )}
+                              </Button>
+                            }
+                          ></PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              captionLayout="dropdown"
+                              fromYear={1900}
+                              toYear={new Date().getFullYear() + 10}
+                              selected={
+                                field.state.value
+                                  ? new Date(field.state.value)
+                                  : undefined
+                              }
+                              onSelect={(date) =>
+                                field.handleChange(
+                                  date ? date.toISOString() : "",
+                                )
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>{" "}
+                        </Popover>
+                        <FormErrorMessage field={field} />
+                      </div>
+                    );
+                  }}
+                </form.Field>
+              </div>
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="position">
                   {(field) => {
                     return (
@@ -225,7 +295,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="location">
                   {(field) => {
                     return (
@@ -245,7 +315,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="fitWithRestrictions">
                   {(field) => {
                     return (
@@ -265,7 +335,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="forx">
                   {(field) => {
                     return (
@@ -285,7 +355,7 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
-              <div className="relative flex flex-col items-start justify-center">
+              <div className="relative flex min-h-[70px] flex-col items-start">
                 <form.Field name="unfit">
                   {(field) => {
                     return (
@@ -305,6 +375,37 @@ export const GenerateCertificate = () => {
                   }}
                 </form.Field>
               </div>
+            </div>
+            <div>
+              <form.Field name="sigKey">
+                {(field) => {
+                  return (
+                    <div>
+                      <Select
+                        value={field.state.value}
+                        id={field.name}
+                        onValueChange={(e) => field.handleChange(String(e))}
+                        items={sigMap}
+                      >
+                        <SelectTrigger className="w-full border border-black">
+                          <SelectValue placeholder="Select Dr Signature" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {sigMap.map((item) => (
+                              <SelectItem key={item.id} value={item.value}>
+                                {item.label}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+
+                      <FormErrorMessage field={field} />
+                    </div>
+                  );
+                }}
+              </form.Field>
             </div>
 
             <div className="flex flex-row items-center gap-2 pt-2">

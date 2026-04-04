@@ -4,6 +4,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   console.log(sessionCookie, "cookie!!!");
+  console.log("cc", sessionCookie);
 
   if (!sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url));

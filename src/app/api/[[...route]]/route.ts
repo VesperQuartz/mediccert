@@ -7,7 +7,7 @@ import { pinoLogger } from "hono-pino";
 import { createHandler as debugLog } from "hono-pino/debug-log";
 import { pino } from "pino";
 import { auth } from "@/lib/auth";
-import { todo } from "@/routes/api/todo";
+import { generate } from "@/routes/api/generate";
 import { factory } from "@/routes/factory";
 
 const app = factory.createApp().basePath("/api");
@@ -57,7 +57,7 @@ app.get("/healthcheck", async (ctx) => {
   return ctx.json({ status: "ok" });
 });
 
-const routes = app.route("/", todo);
+const routes = app.route("/", generate);
 
 export const GET = handle(app);
 export const POST = handle(app);

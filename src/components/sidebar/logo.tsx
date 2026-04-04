@@ -1,4 +1,4 @@
-import { SVGProps } from "react";
+import type { SVGProps } from "react";
 
 export const Logo = (props: SVGProps<SVGSVGElement>) => (
   <svg
@@ -6,8 +6,10 @@ export const Logo = (props: SVGProps<SVGSVGElement>) => (
     height="48"
     viewBox="0 0 40 48"
     width="40"
+    role="img"
     {...props}
   >
+    <title>MedicCert Logo</title>
     <clipPath id="a">
       <path d="m0 0h40v48h-40z" />
     </clipPath>

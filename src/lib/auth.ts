@@ -17,21 +17,6 @@ export const auth = betterAuth({
     requireEmailVerification: false,
     autoSignIn: true,
   },
-  emailVerification: {
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-    sendOnSignIn: true,
-    // sendVerificationEmail: async ({ user, url }) => {
-    //   const mail = new MailServer(transporter);
-    //   await mail.sendVerificationEmail({
-    //     recipient: user.email,
-    //     tokenUrl: url,
-    //   });
-    // },
-    // afterEmailVerification: async (data) => {
-    //   console.log(data);
-    // },
-  },
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
