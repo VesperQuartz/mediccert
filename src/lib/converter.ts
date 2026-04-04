@@ -62,7 +62,6 @@ export const generateCertificate = async ({
   forx,
   unfit,
 }: Certificate) => {
-  console.time("myTimer");
   const [template, stamp, signature] = await Promise.all([
     getBufferFromRequest({
       fileType: "docx",
@@ -77,7 +76,6 @@ export const generateCertificate = async ({
       url: String(sigMap.find((sig) => sig.value === sigKey)?.value),
     }),
   ]);
-  console.timeEnd("myTimer");
   const buffer = await createReport({
     cmdDelimiter: ["{", "}"],
     template,

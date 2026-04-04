@@ -109,7 +109,7 @@ export const generateCert = os
         unfit,
       });
 
-      db.insert(certificate).values({
+      await db.insert(certificate).values({
         userId: session.user.id,
         certNo,
         firstName,
