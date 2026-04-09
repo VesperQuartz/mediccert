@@ -27,9 +27,14 @@ export const sigMap = [
     value: "https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/dr_segun.png",
   },
   {
-    id: 1,
+    id: 2,
     label: "Dr Aisah",
     value: "https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/dr_aisha.png",
+  },
+  {
+    id: 3,
+    label: "Dr Amina",
+    value: "https://pub-23dd78d40b4341a1b0079194eaaf4552.r2.dev/dr_amina.png",
   },
 ];
 
