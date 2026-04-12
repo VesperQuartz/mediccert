@@ -12,6 +12,7 @@ export const generateSchema = z
     periodicalCheck: z.boolean(),
     prolongedMedicalCheck: z.boolean(),
     fitForAssignedTask: z.boolean(),
+    unfitForAssignedTask: z.boolean(),
     // workUnit: z.boolean(),
     DOB: z
       .string()

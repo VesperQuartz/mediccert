@@ -7,6 +7,7 @@ export type Certificate = {
   prolongedMedicalCheck: boolean;
   periodicalCheck: boolean;
   fitForAssignedTask: boolean;
+  unfitForAssignedTask: boolean;
   surname: string;
   certNo: string;
   DOB: string;
@@ -65,6 +66,7 @@ export const generateCertificate = async ({
   prolongedMedicalCheck,
   unFitToWork,
   fitForAssignedTask,
+  unfitForAssignedTask,
   firstName,
   surname,
   certNo,
@@ -97,6 +99,7 @@ export const generateCertificate = async ({
     data: {
       certNo,
       fitForAssignedTask,
+      unfitForAssignedTask,
       fitWithRestrictions: fitWithRestrictions.toUpperCase(),
       contractorCompanyName: contractorCompanyName.toUpperCase(),
       prolongedMedicalCheck,

@@ -41,6 +41,7 @@ export const GenerateCertificate = () => {
       periodicalCheck: false,
       prolongedMedicalCheck: false,
       fitForAssignedTask: false,
+      unfitForAssignedTask: false,
       // workUnit: false,
       certNo: "",
       DOB: "",
@@ -462,7 +463,7 @@ export const GenerateCertificate = () => {
               <Label>Fit for the assigned work/tasks and location</Label>
             </div>
             <div className="flex flex-row items-center gap-2">
-              <form.Field name="fitForAssignedTask">
+              <form.Field name="unfitForAssignedTask">
                 {(field) => {
                   return (
                     <Checkbox
