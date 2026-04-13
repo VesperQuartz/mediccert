@@ -22,9 +22,9 @@ const nextConfig: NextConfig = {
     typedEnv: true,
     optimizeCss: true,
   },
-  reactCompiler: true,
+  reactCompiler: false,
   allowedDevOrigins: ["mrlectus.local"],
-  cacheComponents: true,
+  cacheComponents: false,
 };
 
 export default nextConfig;
